@@ -1,0 +1,51 @@
+{
+  "name": "xaf-shadow-node",
+  "version": "1.0.0-x1",
+  "private": true,
+  "description": "XAF Phase X Stage X1 - Anonymous stateless MCP edge node on Cloudflare Workers (testnet-only settlement).",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:dry": "wrangler deploy --dry-run --outdir dist",
+    "smoke": "node test/smoke.mjs",
+    "smoke:paid": "node test/smoke_paid.mjs",
+    "smoke:verbose": "node test/smoke.mjs --verbose",
+    "facilitator": "node test/facilitator_mock.mjs",
+    "facilitator:live": "node test/facilitator_mock.mjs --live",
+    "serve": "node test/serve.mjs",
+    "x3:testnet": "node test/x3_testnet_run.mjs",
+    "wallet": "node test/gen_relayer_wallet.mjs",
+    "wallet:check": "node test/gen_relayer_wallet.mjs --check",
+    "wallet:rotate": "node test/gen_relayer_wallet.mjs --rotate",
+    "f1": "node test/f1_realchain_run.mjs",
+    "f1:full": "node test/f1_realchain_run.mjs --full",
+    "scan": "node tools/prepublish_scan.mjs",
+    "scan:selftest": "node tools/prepublish_scan.mjs --selftest",
+    "x4": "node test/x4_dashboard_run.mjs",
+    "x4:live": "node test/x4_dashboard_run.mjs --live https://xaf-shadow-node.chengganping.workers.dev",
+    "manifest:sync": "node tools/sync_manifest.mjs https://xaf-shadow-node.chengganping.workers.dev"
+  },
+  "devDependencies": {
+    "ethers": "^6.17.0",
+    "wrangler": "^4.0.0"
+  },
+  "license": "UNLICENSED",
+  "xaf": {
+    "phase": "X",
+    "stage": "X1",
+    "redlines": [
+      "no-mainnet-interaction",
+      "no-fiat-gateway",
+      "no-real-identity",
+      "no-centralized-server",
+      "no-push"
+    ],
+    "upstream_sources": [
+      "scripts/xaf_infinity/digital_rights_engine.py",
+      "products/x402_middleware.py",
+      "docs/learning/deep_research/x402-mcp-monetization-2026.md"
+    ]
+  }
+}

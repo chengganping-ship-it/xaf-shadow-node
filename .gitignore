@@ -1,0 +1,17 @@
+# 这个仓库必须保持"可公开" —— 下面是硬拦截，不要绕过。
+# 第二条非常关键：任何本地凭据文件不得进版本库，哪怕你以为它是空的。
+node_modules/
+.wrangler/
+dist/
+coverage/
+
+.env
+.env.*
+.env.relayer
+.dev.vars
+!.dev.vars.example
+
+package-lock.json
+*.log
+.DS_Store
+Thumbs.db

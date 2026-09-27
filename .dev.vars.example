@@ -1,0 +1,13 @@
+# 本地开发变量占位 —— 复制到 .dev.vars 后填真实值。
+# ⛔ .dev.vars 必须加入 .gitignore，禁止提交任何真实凭据。
+# ⛔ Phase X 期间不允许出现任何主网 RPC URL、任何法币网关 API Key。
+
+# Stage X3 才需要：x402 facilitator 的调用凭据（测试网）
+# X402_FACILITATOR_API_KEY=
+
+# Stage X3 才需要：代码托管的一次性测试网钱包（非任何个人冷钱包），仅私钥放入 wrangler secret put
+# wrangler secret put XAF_TESTNET_SIGNER_KEY
+
+X402_MODE = "simulation"
+XAF_LOG_LEVEL = "debug"
+XAF_TESTNET_PAYTO = "0x0000000000000000000000000000000000000000"

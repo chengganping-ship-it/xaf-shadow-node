@@ -1,0 +1,85 @@
+# ============================================================================
+# XAF Phase X / Stage X1 — 影子经济体 · 边缘网关
+# 匿名 Stateless MCP Server on Cloudflare Workers (Free Tier)
+#
+# 红线硬约束（改动前请重读）：
+#   1. 零主网交互：X402_NETWORK 只允许 base-sepolia(84532) / polygon-amoy(80002)
+#   2. 零真实身份：本 Worker 不记录 IP / UA / 指纹到任何持久化存储
+#   3. 零中心化服务器：仅边缘 + Workers 运行时，无 KV/D1/R2 强依赖
+#   4. 禁止触碰 Stripe / 支付宝 / 微信支付等任何真实法币网关
+# ============================================================================
+
+name = "xaf-shadow-node"
+main = "src/index.js"
+compatibility_date = "2026-09-20"
+
+# 拿到匿名 *.workers.dev 域名（免费额度：100k 请求/天 Workers Paid 之外；Free tier 见文档）
+workers_dev = true
+
+# Phase X 明文禁止自定义域名 —— 自定义域名 = 可被 WHOIS 溯源的中心化身份。
+# 如需自用 DNS，请走 CF zone + proxy，不要在本文件写 routes。
+
+[observability]
+enabled = true
+
+[vars]
+# —— 节点身份（匿名：不含任何人/组织/邮箱标识）——
+XAF_NODE_ID = "ghost-node-00"
+XAF_TOOLSET_VERSION = "x1.0"
+XAF_MCP_PROTOCOL_VERSION = "2025-06-18"
+
+# —— x402 支付门禁 ——
+# free        : 全放行（目录收录期爬曝光，Stage X1 默认）
+# simulation  : 放行但写入模拟计费流水
+# strict      : 无有效凭证即 402（Stage X3 打开）
+X402_MODE = "free"
+
+# 只允许测试网。任何 base / polygon-mainnet / ethereum 值都会触发启动期熔断。
+X402_NETWORK = "base-sepolia"
+X402_FACILITATOR_URL = ""
+
+# 测试网 USDC 合约 + 收款地址
+# ✅ 已上链校验（2026-09-27 via https://sepolia.base.org）：
+#    chainId=0x14a34(84532) | symbol()=USDC | decimals()=6 | eth_getCode 非空
+#    ⛔ 旧占位 0x036CbD...8b39E1D6 在该链上是空合约，已废弃
+XAF_TESTNET_USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+XAF_TESTNET_PAYTO = "0x0000000000000000000000000000000000000000"
+# 哪些链已实地验证；未验证的不对外宣称支持（Amoy 从本机 RPC 不可达，暂 false）
+XAF_CHAINS_VERIFIED = "{\"84532\":true,\"80002\":false}"
+
+# x402 facilitator（verify/settle 由它承担，Worker 不自己做链上密码学）
+X402_FACILITATOR_TIMEOUT_MS = "4000"
+
+# —— 每日免费额度（沿用 products/x402_middleware.py DAILY_FREE_QUOTA 口径）——
+XAF_FREE_QUOTA_JSON = "{\"rights_precheck\":3,\"c2c_lead_sniff\":5,\"portfolio_valuation\":2}"
+
+# —— CORS：目录平台（Smithery/Glama/MCP 市场）需在浏览器里连 ——
+# 生产建议收紧为显式来源；X1 收录期默认 * 以保证目录探测器可用。
+XAF_CORS_ORIGINS = "*"
+
+# —— 输出 ——
+XAF_LOG_LEVEL = "info"
+
+# ---------------------------------------------------------------------------
+# 匿名遥测持久化（Stage F4）— 当前状态：**待你处理**
+#
+# 写的是 {event, tool, method, +1}，**不含 IP/UA/任何请求身份字段**（见 src/telemetry.js）。
+# 缺这个绑定不影响正确性：计数仍在 /metrics 返回，只是随 isolate 回收而归零，
+# /metrics 会用 persistence 字段如实写明当前口径，不伪装成持久计数。
+#
+# ⏳ 想拿到持久计数（X4 的 A/B 才有真数据），需要你在 Dashboard 点一次启用：
+#    https://dash.cloudflare.com/c50a5a626cd339a9c9cf0d58f4ec2858/workers/analytics-engine
+#    之后把下面三行的 '#' 去掉，重新 npm run deploy。
+#    （Cloudflare 把它锁在 UI 流程里：实测 API 尝试返回 Authentication error，绕不过去。）
+#
+# [[analytics_engine_datasets]]
+# binding = "XAF_TELEMETRY"
+# dataset = "xaf_shadow_events"
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# 可选持久化（Stage X3+ 才需要；当前刻意不启用，保持零状态）
+# ---------------------------------------------------------------------------
+# [[kv_namespaces]]
+# binding = "XAF_METER"
+# id = "00000000000000000000000000000000"
